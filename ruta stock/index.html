@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta Stock - Distribuidora</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-truck-fast"></i>
+                <span>Ruta Stock</span>
+            </div>
+            <nav class="nav">
+                <a href="#inicio" class="nav-link active">Inicio</a>
+                <a href="#categorias" class="nav-link">Categorías</a>
+                <a href="#productos" class="nav-link">Productos</a>
+                <a href="#contacto" class="nav-link">Contacto</a>
+            </nav>
+            <div class="header-actions">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Buscar productos...">
+                    <button class="search-btn" id="searchBtn" type="button" aria-label="Buscar">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="highlight">Ruta Stock</span>
+                    <br>Tu distribuidora de confianza
+                </h1>
+                <p class="hero-subtitle">
+                    Productos de calidad para tu kiosco u hogar. 
+                    Pedidos rápidos y entrega confiable.
+                </p>
+                <div class="hero-notice" role="note" aria-label="Información de pedidos y reparto">
+                    <div class="hero-notice-title">
+                        <i class="fas fa-circle-info"></i>
+                        Pedidos por encargo
+                    </div>
+                    <ul class="hero-notice-list">
+                        <li>Tomamos pedidos de sábado a miércoles.</li>
+                        <li>Reparto los jueves y viernes.</li>
+                        <li>Al finalizar el pedido, se envía por WhatsApp una lista con los productos a nuestro número.</li>
+                        <li>El día de reparto, entregamos y se cobra en persona.</li>
+                    </ul>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="scrollToSection('productos')">
+                        <i class="fas fa-shopping-bag"></i>
+                        Ver Productos
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('contacto')">
+                        <i class="fas fa-phone"></i>
+                        Contactar
+                    </button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card">
+                    <i class="fas fa-truck-fast"></i>
+                    <span>Entrega Rápida</span>
+                </div>
+                <div class="floating-card">
+                    <i class="fas fa-shield-check"></i>
+                    <span>Calidad Garantizada</span>
+                </div>
+                <div class="floating-card">
+                    <i class="fas fa-clock"></i>
+                    <span>24/7 Disponible</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categorias" class="categories">
+        <div class="container">
+            <h2 class="section-title">Nuestras Categorías</h2>
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Categories will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="productos" class="products">
+        <div class="container">
+            <div class="products-header">
+                <h2 class="section-title">Productos</h2>
+                <div class="filters" id="filterButtons"></div>
+            </div>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contacto" class="contact">
+        <div class="container">
+            <h2 class="section-title">Contacto</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Teléfono</h3>
+                            <p>+54 9 261 5750410</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <h3>¿Tienes alguna consulta?</h3>
+                    <p>Contáctanos por WhatsApp para una respuesta rápida</p>
+                    <button class="btn btn-primary" onclick="openWhatsApp()">
+                        <i class="fab fa-whatsapp"></i>
+                        Contactar por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Carrito de Compras</h3>
+                <button class="close-btn" id="closeCartModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="cartItems">
+                    <!-- Cart items will be loaded dynamically -->
+                </div>
+                <div class="cart-total">
+                    <strong>Total: $<span id="cartTotal">0</span></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="clearCart">
+                    <i class="fas fa-trash"></i>
+                    Vaciar Carrito
+                </button>
+                <button class="btn btn-primary" id="checkoutBtn">
+                    <i class="fab fa-whatsapp"></i>
+                    Enviar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Finalizar Pedido</h3>
+                <button class="close-btn" id="closeCheckoutModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label for="customerName">Nombre completo *</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Dirección *</label>
+                        <input type="text" id="customerAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerReference">Referencia (opcional)</label>
+                        <input type="text" id="customerReference" placeholder="Ej: Casa azul, portón negro">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelCheckout">Cancelar</button>
+                <button class="btn btn-primary" id="sendOrderBtn">
+                    <i class="fab fa-whatsapp"></i>
+                    Enviar por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Float Button -->
+    <a href="#" class="whatsapp-float" onclick="openWhatsApp()" title="Contactar por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Loading Spinner -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="productos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
