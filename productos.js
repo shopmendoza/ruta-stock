@@ -31,6 +31,51 @@ const productsData = [
         description: "Azúcar común.",
         image: "img/productos/azucar.jpg",
         icon: "fas fa-cube"
+    },
+    {
+        id: 4,
+        name: "Papel Higiénico",
+        category: "limpieza",
+        price: 2000,
+        description: "Papel higiénico pack.",
+        image: null,
+        icon: "fas fa-toilet-paper"
+    },
+    {
+        id: 5,
+        name: "Galleta Cofler",
+        category: "snacks",
+        price: 1200,
+        description: "Galleta Cofler.",
+        image: null,
+        icon: "fas fa-cookie-bite"
+    },
+    {
+        id: 6,
+        name: "Maní Salado 100gr",
+        category: "snacks",
+        price: 1000,
+        description: "Maní salado de 100 gramos.",
+        image: null,
+        icon: "fas fa-seedling"
+    },
+    {
+        id: 7,
+        name: "Lavandina 1lt",
+        category: "limpieza",
+        price: 1200,
+        description: "Lavandina de 1 litro.",
+        image: null,
+        icon: "fas fa-bottle-droplet"
+    },
+    {
+        id: 8,
+        name: "Papas Fritas 1kg",
+        category: "snacks",
+        price: 6700,
+        description: "Papas fritas por kilo.",
+        image: null,
+        icon: "fas fa-cookie-bite"
     }
 ];
 

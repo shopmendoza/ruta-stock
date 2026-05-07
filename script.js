@@ -23,12 +23,35 @@ const elements = {
 // Inicialización cuando el DOM está listo
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
+    applyResponsiveSectionOrder();
     setupEventListeners();
     loadCategories();
     loadFilterButtons();
     loadProducts();
     updateCartUI();
+
+    // Si cambia entre móvil/escritorio, mantenemos el orden correcto.
+    window.addEventListener('resize', applyResponsiveSectionOrder);
 });
+
+function applyResponsiveSectionOrder() {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const productsSection = document.getElementById('productos');
+    const categoriesSection = document.getElementById('categorias');
+    if (!productsSection || !categoriesSection) return;
+
+    if (isMobile) {
+        // En móvil mostramos productos antes que categorías para reducir fricción.
+        if (categoriesSection.previousElementSibling !== productsSection) {
+            categoriesSection.parentNode.insertBefore(productsSection, categoriesSection);
+        }
+    } else {
+        // En escritorio restauramos categorías antes de productos.
+        if (productsSection.previousElementSibling !== categoriesSection) {
+            productsSection.parentNode.insertBefore(categoriesSection, productsSection);
+        }
+    }
+}
 
 // Inicializar aplicación
 function initializeApp() {
@@ -112,11 +135,25 @@ function setupSmoothScroll() {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const targetId = this.getAttribute('href').substring(1);
+
+            // Si van a "Productos", limpiamos una búsqueda previa para evitar lista vacía.
+            if (targetId === 'productos') {
+                if (elements.searchInput) {
+                    elements.searchInput.value = '';
+                }
+                currentFilter = 'all';
+                updateFilterButtons();
+                loadProducts(getProductsByCategory('all'));
+            }
+
             scrollToSection(targetId);
             
             // Actualizar navegación activa
             navLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
+
+            // En móvil, cerrar menú al seleccionar una sección.
+            closeMobileMenu();
         });
     });
 }
@@ -380,6 +417,7 @@ function addToCart(productId, quantityToAdd = 1) {
     saveCart();
     updateCartUI();
     showAddToCartAnimation(productId);
+    showCartNotification(product.name, quantityToAdd);
 }
 
 // Remover del carrito
@@ -441,14 +479,43 @@ function showAddToCartAnimation(productId) {
 
     const button = productCard.querySelector('.add-to-cart');
     const originalText = button.innerHTML;
+    const cartButton = document.getElementById('cartBtn');
     
     button.innerHTML = '<i class="fas fa-check"></i> Agregado';
     button.style.background = '#4CAF50';
+
+    // Señal clara para que el usuario vea dónde finalizar pedido.
+    if (cartButton) {
+        cartButton.classList.remove('cart-attention');
+        void cartButton.offsetWidth;
+        cartButton.classList.add('cart-attention');
+    }
     
     setTimeout(() => {
         button.innerHTML = originalText;
         button.style.background = '';
     }, 1000);
+}
+
+function showCartNotification(productName, qty) {
+    const existing = document.querySelector('.cart-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'cart-toast';
+    toast.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${qty > 1 ? `${qty}x ${productName}` : productName} agregado al carrito</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+    }, 1800);
 }
 
 // Configurar event listeners de modales
@@ -474,6 +541,9 @@ function setupModalEventListeners() {
     elements.cartModal?.addEventListener('click', (e) => {
         if (e.target === elements.cartModal) closeCartModal();
     });
+
+    const cartModalContent = elements.cartModal?.querySelector('.modal-content');
+    cartModalContent?.addEventListener('scroll', updateCartScrollHint);
     
     elements.checkoutModal?.addEventListener('click', (e) => {
         if (e.target === elements.checkoutModal) closeCheckoutModal();
@@ -487,6 +557,10 @@ function openCartModal() {
     updateCartModal();
     elements.cartModal.classList.add('show');
     document.body.style.overflow = 'hidden';
+
+    const cartModalContent = elements.cartModal.querySelector('.modal-content');
+    if (cartModalContent) cartModalContent.scrollTop = 0;
+    setTimeout(updateCartScrollHint, 100);
 }
 
 // Cerrar modal del carrito
@@ -495,6 +569,7 @@ function closeCartModal() {
     
     elements.cartModal.classList.remove('show');
     document.body.style.overflow = '';
+    document.getElementById('cartScrollHint')?.classList.remove('show');
 }
 
 // Actualizar contenido del modal del carrito
@@ -512,6 +587,7 @@ function updateCartModal() {
                 </button>
             </div>
         `;
+        updateCartScrollHint();
         return;
     }
 
@@ -538,6 +614,21 @@ function updateCartModal() {
             </div>
         </div>
     `).join('');
+    updateCartScrollHint();
+}
+
+function updateCartScrollHint() {
+    if (!elements.cartModal) return;
+
+    const hint = document.getElementById('cartScrollHint');
+    const cartModalContent = elements.cartModal.querySelector('.modal-content');
+    if (!hint || !cartModalContent) return;
+
+    const canScroll = cartModalContent.scrollHeight - cartModalContent.clientHeight > 30;
+    const nearBottom = cartModalContent.scrollTop + cartModalContent.clientHeight >= cartModalContent.scrollHeight - 24;
+    const shouldShow = elements.cartModal.classList.contains('show') && cart.length > 0 && canScroll && !nearBottom;
+
+    hint.classList.toggle('show', shouldShow);
 }
 
 // Abrir modal de checkout
@@ -699,13 +790,15 @@ function scrollToSection(sectionId) {
 function toggleMobileMenu() {
     const nav = document.querySelector('.nav');
     const isVisible = nav.style.display === 'flex';
+    const header = document.querySelector('.header');
+    const headerHeight = header ? header.offsetHeight : 70;
     
     if (isVisible) {
-        nav.style.display = 'none';
+        closeMobileMenu();
     } else {
         nav.style.display = 'flex';
         nav.style.position = 'fixed';
-        nav.style.top = '80px';
+        nav.style.top = `${headerHeight}px`;
         nav.style.left = '0';
         nav.style.right = '0';
         nav.style.background = 'var(--background-dark)';
@@ -714,6 +807,12 @@ function toggleMobileMenu() {
         nav.style.borderTop = '1px solid var(--border-color)';
         nav.style.zIndex = '999';
     }
+}
+
+function closeMobileMenu() {
+    const nav = document.querySelector('.nav');
+    if (!nav) return;
+    nav.style.display = 'none';
 }
 
 // Mostrar loading
