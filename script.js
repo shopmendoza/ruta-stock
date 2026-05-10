@@ -29,10 +29,39 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFilterButtons();
     loadProducts();
     updateCartUI();
+    showWelcomeToastOncePerSession();
 
     // Si cambia entre móvil/escritorio, mantenemos el orden correcto.
     window.addEventListener('resize', applyResponsiveSectionOrder);
 });
+
+function showWelcomeToastOncePerSession() {
+    try {
+        const key = 'rutastock_welcome_shown';
+        if (sessionStorage.getItem(key) === '1') return;
+        sessionStorage.setItem(key, '1');
+    } catch (_) {
+        // Si el navegador bloquea storage, mostramos igual una vez.
+    }
+
+    const existing = document.querySelector('.welcome-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'welcome-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.textContent = 'Bienvenido a Ruta Stock';
+
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => toast.classList.add('show'));
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+    }, 2200);
+}
 
 function applyResponsiveSectionOrder() {
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
@@ -274,12 +303,12 @@ function createProductCard(product) {
     
     const imageContent = product.image 
         ? `<img src="${product.image}" alt="${product.name}">`
-        : `<i class="${product.icon}"></i>`;
+        : ``;
 
     const initialQty = getSelectedProductQty(product.id);
 
     card.innerHTML = `
-        <div class="product-image">
+        <div class="product-image ${product.imageFit === 'contain' ? 'contain' : ''}">
             ${imageContent}
         </div>
         <div class="product-info">
@@ -290,7 +319,19 @@ function createProductCard(product) {
                 <span class="product-price">${appConfig.currency}${product.price}</span>
                 <div class="qty-selector" aria-label="Seleccionar cantidad">
                     <button class="qty-btn" type="button" onclick="decrementProductQty(${product.id})" aria-label="Restar">−</button>
-                    <span class="qty-value" id="qty-${product.id}" aria-label="Cantidad">${initialQty}</span>
+                    <input
+                        class="qty-input"
+                        id="qty-${product.id}"
+                        type="number"
+                        inputmode="numeric"
+                        min="1"
+                        max="99"
+                        value="${initialQty}"
+                        aria-label="Cantidad"
+                        oninput="handleQtyInput(${product.id}, this.value)"
+                        onchange="commitQtyInput(${product.id}, this.value)"
+                        onblur="commitQtyInput(${product.id}, this.value)"
+                    />
                     <button class="qty-btn" type="button" onclick="incrementProductQty(${product.id})" aria-label="Sumar">+</button>
                 </div>
                 <button class="add-to-cart" onclick="addToCart(${product.id}, getSelectedProductQty(${product.id}))">
@@ -313,7 +354,38 @@ function setSelectedProductQty(productId, qty) {
     const safeQty = Math.max(1, Math.min(99, qty));
     productQuantities[productId] = safeQty;
     const qtyEl = document.getElementById(`qty-${productId}`);
-    if (qtyEl) qtyEl.textContent = String(safeQty);
+    if (qtyEl) qtyEl.value = String(safeQty);
+}
+
+function handleQtyInput(productId, rawValue) {
+    // Permitimos vacío mientras escribe (sin forzar "1" en cada tecla)
+    const qtyEl = document.getElementById(`qty-${productId}`);
+    if (!qtyEl) return;
+
+    const s = String(rawValue);
+    if (s.trim() === '') {
+        qtyEl.value = '';
+        return;
+    }
+
+    // Limpiar caracteres no numéricos de forma suave
+    const n = parseInt(s, 10);
+    if (!Number.isFinite(n)) return;
+
+    // No actualizamos el estado definitivo hasta blur/change,
+    // pero mantenemos el valor "razonable" en pantalla.
+    qtyEl.value = String(Math.max(1, Math.min(99, n)));
+}
+
+function commitQtyInput(productId, rawValue) {
+    const s = String(rawValue).trim();
+    if (s === '') {
+        setSelectedProductQty(productId, 1);
+        return;
+    }
+
+    const n = parseInt(s, 10);
+    setSelectedProductQty(productId, Number.isFinite(n) ? n : 1);
 }
 
 function incrementProductQty(productId) {
@@ -409,7 +481,7 @@ function addToCart(productId, quantityToAdd = 1) {
             name: product.name,
             price: product.price,
             category: product.category,
-            icon: product.icon,
+            image: product.image || null,
             quantity: Math.max(1, quantityToAdd)
         });
     }
@@ -594,7 +666,7 @@ function updateCartModal() {
     elements.cartItems.innerHTML = cart.map(item => `
         <div class="cart-item">
             <div class="cart-item-image">
-                <i class="${item.icon}"></i>
+                ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ``}
             </div>
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
@@ -873,3 +945,5 @@ window.toggleMobileMenu = toggleMobileMenu;
 window.incrementProductQty = incrementProductQty;
 window.decrementProductQty = decrementProductQty;
 window.getSelectedProductQty = getSelectedProductQty;
+window.handleQtyInput = handleQtyInput;
+window.commitQtyInput = commitQtyInput;

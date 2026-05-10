@@ -27,6 +27,9 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .container {
@@ -264,6 +267,7 @@ body {
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
 }
 
 .highlight {
@@ -280,12 +284,18 @@ body {
     line-height: 1.6;
 }
 
+.hero-content {
+    max-width: 620px;
+}
+
 .hero-notice {
     margin: 1.25rem 0 2rem;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 16px;
     padding: 1rem 1.1rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
 }
 
 .hero-notice-title {
@@ -305,6 +315,10 @@ body {
     font-weight: 500;
 }
 
+.hero-notice-list li {
+    margin: 0.35rem 0;
+}
+
 .hero-notice-list strong {
     color: inherit;
     font-weight: inherit;
@@ -314,6 +328,13 @@ body {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.hero-trust {
+    margin: 0.75rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 .btn {
@@ -328,6 +349,19 @@ body {
     gap: 0.5rem;
     text-decoration: none;
     font-size: 1rem;
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible,
+.search-btn:focus-visible,
+.cart-btn:focus-visible,
+.mobile-menu-toggle:focus-visible {
+    outline: 3px solid rgba(255, 215, 0, 0.55);
+    outline-offset: 3px;
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 
 .btn-primary {
@@ -584,6 +618,11 @@ section {
     transition: transform 0.3s ease;
 }
 
+.product-image.contain img {
+    object-fit: contain;
+    transform: none !important;
+}
+
 .product-card:hover .product-image img {
     transform: scale(1.1);
 }
@@ -665,6 +704,34 @@ section {
     text-align: center;
     font-weight: 600;
     color: var(--text-primary);
+}
+
+.qty-input {
+    width: 52px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+    text-align: center;
+    font-weight: 700;
+    outline: none;
+}
+
+.qty-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--shadow-light);
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qty-input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 .product-price {
@@ -850,6 +917,14 @@ section {
     justify-content: center;
     color: var(--primary-color);
     font-size: 1.5rem;
+    overflow: hidden;
+}
+
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .cart-item-info {
@@ -1071,6 +1146,33 @@ section {
     opacity: 1;
 }
 
+.welcome-toast {
+    position: fixed;
+    top: 92px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    z-index: 2600;
+    background: var(--primary-color);
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 999px;
+    padding: 0.55rem 0.9rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: -0.01em;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    pointer-events: none;
+    max-width: calc(100vw - 24px);
+    text-align: center;
+}
+
+.welcome-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 /* Loading Spinner */
 .loading {
     display: none;
@@ -1173,42 +1275,54 @@ section {
     }
 
     .hero {
-        min-height: auto;
+        /* Un poco más alto y ordenado en móvil,
+           pero dejando que "Productos" asome abajo */
+        min-height: calc(100svh - 72px - 64px);
         padding-top: 5.2rem;
-        padding-bottom: 0.6rem;
+        padding-bottom: 1.4rem;
     }
 
     .hero-title {
-        font-size: 1.7rem;
-        margin-bottom: 0.65rem;
+        font-size: 1.42rem;
+        line-height: 1.16;
+        margin-bottom: 0.8rem;
     }
 
     .hero-subtitle {
-        font-size: 0.95rem;
-        margin-bottom: 0.9rem;
-        line-height: 1.35;
+        font-size: 0.84rem;
+        margin-bottom: 1.15rem;
+        line-height: 1.55;
     }
 
     .hero-notice {
-        margin: 0.6rem 0 0.9rem;
-        padding: 0.7rem 0.75rem;
+        margin: 0.75rem 0 1.05rem;
+        padding: 0.78rem 0.85rem;
     }
 
     .hero-notice-title {
-        margin-bottom: 0.45rem;
-        font-size: 0.9rem;
+        margin-bottom: 0.55rem;
+        font-size: 0.84rem;
     }
 
     .hero-notice-list {
         display: block;
-        font-size: 0.8rem;
-        line-height: 1.35;
+        font-size: 0.74rem;
+        line-height: 1.6;
         padding-left: 1rem;
+    }
+
+    .hero-content {
+        max-width: 36rem;
+        margin: 0 auto;
     }
 
     .hero-actions {
         justify-content: center;
         gap: 0.6rem;
+    }
+
+    .hero-trust {
+        display: none;
     }
 
     .floating-card {
@@ -1293,6 +1407,15 @@ section {
         border-radius: 18px;
     }
 
+    .product-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .qty-selector {
+        align-self: center;
+    }
+
     .product-description {
         font-size: 0.76rem;
         margin-bottom: 0.55rem;
@@ -1310,9 +1433,16 @@ section {
     }
 
     .qty-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 1rem;
+        width: clamp(22px, 7vw, 28px);
+        height: clamp(22px, 7vw, 28px);
+        font-size: clamp(0.9rem, 3.2vw, 1rem);
+    }
+
+    .qty-input {
+        width: clamp(34px, 12vw, 56px);
+        height: clamp(22px, 7vw, 28px);
+        font-size: clamp(0.78rem, 3.1vw, 0.92rem);
+        padding: 0;
     }
 
     .qty-value {
@@ -1450,6 +1580,18 @@ section {
         padding: 0.56rem 0.7rem;
     }
 
+    .welcome-toast {
+        top: auto;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+        font-size: 0.84rem;
+        padding: 0.5rem 0.8rem;
+        transform: translateX(-50%) translateY(8px);
+    }
+
+    .welcome-toast.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
     #categorias {
         padding-top: 1.3rem;
         padding-bottom: 1.5rem;
@@ -1500,6 +1642,12 @@ section {
 
     .product-image {
         height: 108px;
+    }
+
+    .qty-input {
+        width: clamp(36px, 12vw, 44px);
+        height: 24px;
+        font-size: 0.82rem;
     }
 
     .hero-notice {

@@ -9,16 +9,17 @@ const productsData = [
         id: 1,
         name: "Huevos",
         category: "almacen",
-        price: 0,
-        description: "Huevos frescos.",
-        image: "img/productos/huevos.jpg",
+        price: 6000,
+        description: "Maple de 30 unidades de tamaño extra.",
+        image: "img/productos/huevos.png",
+        imageFit: "contain",
         icon: "fas fa-egg"
     },
     {
         id: 2,
         name: "Yerba",
         category: "almacen",
-        price: 0,
+        price: 12000,
         description: "Yerba mate.",
         image: "img/productos/yerba.jpg",
         icon: "fas fa-leaf"
@@ -61,10 +62,10 @@ const productsData = [
     },
     {
         id: 7,
-        name: "Lavandina 1lt",
-        category: "limpieza",
+        name: "yerba cbs",
+        category: "almacen",
         price: 1200,
-        description: "Lavandina de 1 litro.",
+        description: "Yerba cbs de 1 kilo.",
         image: null,
         icon: "fas fa-bottle-droplet"
     },
